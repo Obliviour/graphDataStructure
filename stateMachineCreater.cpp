@@ -5,15 +5,7 @@
 
 #include <stdio.h>
 #include <string.h>
-//----------GLOBAL VARIABLES---------//
-
-enum stateType {
-    MEALY = 0,
-    MOORE
-};
-int numStates = 25;
-int numInputBits = 4;
-
+#include <list>
 
 struct NodeMealy {
 	char name[8];
@@ -35,6 +27,21 @@ struct edgeMoore {
 	NodeMoore* toNode;
 	int intputs;
 }
+
+//----------GLOBAL VARIABLES---------//
+
+enum stateType {
+    MEALY = 0,
+    MOORE
+};
+int numStates = 25;
+int numInputBits = 4;
+std::list<NodeMealy> mealyNodes;
+std::list<NodeMoore> mooreNodes;
+std::list<edgeMealy> mealyEdges;
+std::list<edgeMoore> mooreEdges;
+
+std::list<NodeMealy>::const_iterator mode;
 
 int main() {
 
