@@ -9,6 +9,8 @@
 #include <iostream>
 #include <iomanip>
 #include <cstdlib>
+#include <stdlib.h>
+
 using namespace std;
 struct nodeMealy {
     nodeMealy(char* name_) : name(name_) {}
@@ -55,7 +57,11 @@ std::list<nodeMoore>::const_iterator mooreNodeIter;
 std::list<edgeMealy>::const_iterator mealyEdgeIter;
 std::list<edgeMoore>::const_iterator mooreEdgeIter;
 
+<<<<<<< HEAD
 bool compareMealyName(const mealyNode &lhs, const mealyNode &rhs) {
+=======
+bool compareMealyName(const nodeMealy &lhs, const nodeMealy &rhs) {
+>>>>>>> 8b13916880d8a0daaf4e549f6fb905f9e4fd7153
 	int comp = strcmp(lhs.name, rhs.name);
 	if (comp < 0) {
 		return 1;
@@ -64,7 +70,11 @@ bool compareMealyName(const mealyNode &lhs, const mealyNode &rhs) {
 	}
 }
 
+<<<<<<< HEAD
 bool compareMooreName(const mooreNode &lhs, const mooreNode &rhs) {
+=======
+bool compareMooreName(const nodeMoore &lhs, const nodeMoore &rhs) {
+>>>>>>> 8b13916880d8a0daaf4e549f6fb905f9e4fd7153
 	int comp = strcmp(lhs.name, rhs.name);
 	if (comp < 0) {
 		return 1;
@@ -86,7 +96,7 @@ void printGraph() {
 			}
 		}
 	} else {
-		mooreNodes.sort(&compareMooreName)
+		mooreNodes.sort(&compareMooreName);
 		for (mooreNodeIter = mooreNodes.begin(); mooreNodeIter != mooreNodes.end(); ++mooreNodeIter) {
 			printf("NODE: %s / %s\n", mealyNodeIter->name, mealyNodeIter->outputs);
 			for (mooreEdgeIter = mooreEdgeIter.begin(); mooreEdgeIter != mooreEdges.end(); ++mooreEdgeIter) {
@@ -110,10 +120,10 @@ void printStateMachine() {
 	printElement("Next State / Output", math.pow(2,numInputBits) * 6 - 19);
 	cout << endl;
 	printElement("", 10)
-	char buffer[4];
 	for (int i = 0; i < math,pow(2,numInputBits); i++) {
-		itoa(i,buffer,2);
-		printElement(buffer, 8);
+        char* buff;
+		sprintf(i,buff,2);
+		printElement(buff, 8);
 
 	}
 }
@@ -125,8 +135,8 @@ void setUp() {
     std::cout << "How many states will you have? (INT 1 - 25)" << std::endl;
     int numStates_temp = 0;
     std::cin >> numStates_temp;
-    if (numStates_temp <= 25 && numStates_temp > 0)
-        numStates = numStates_temp;
+    if (numStates_temp <= 25 && numStates_temp > 0) {
+        numStates = numStates_temp; }
     else {
         std::cout << "Incorrect number of states" << std::endl;
         std::exit(0);
