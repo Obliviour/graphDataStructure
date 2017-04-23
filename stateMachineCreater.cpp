@@ -93,27 +93,37 @@ void printGraph() {
 		for (mealyNodeIter = mealyNodes.begin(); mealyNodeIter != mealyNodes.end(); ++mealyNodeIter) {
             cout << "NODE: " << mealyNodeIter->name << endl;
 			//printf("NODE: %s\n", mealyNodeIter->name);
-			for (mealyEdgeIter = mealyEdges.begin(); mealyEdgeIter != mealyEdges.end(); ++mealyEdgeIter) {
+            int count = 1;
+            for (mealyEdgeIter = mealyEdges.begin(); mealyEdgeIter != mealyEdges.end(); ++mealyEdgeIter) {
 				if (mealyNodeIter->name == mealyEdgeIter->fromNode->name) {
                     cout << "\t" <<  mealyEdgeIter->fromNode->name << " " << mealyEdgeIter->toNode->name << " ";
                     //NOTE I think this \n isnt suppose to be here
                     //printf("\t%s %s \n", mealyEdgeIter->fromNode->name, mealyEdgeIter->toNode->name);
                     cout << std::bitset<4>(mealyEdgeIter->inputs).to_string() << " / " << mealyEdgeIter->outputs << endl;
-				}
+                    count++;
+                }
 			}
+            if (count != pow(numInputBits,2)) {
+                cout << "%error: missing inputs for state changes for NODE " << mealyNodeIter->name << "%" << endl;
+            }
 		}
 	} else {
 		mooreNodes.sort(&compareMooreName);
 		for (mooreNodeIter = mooreNodes.begin(); mooreNodeIter != mooreNodes.end(); ++mooreNodeIter) {
             cout << "NODE: " << mooreNodeIter->name << " / " << mooreNodeIter->outputs << endl;
 			//printf("NODE: %s / %s\n", mooreNodeIter->name, mooreNodeIter->outputs);
+			int count = 1;
 			for (mooreEdgeIter = mooreEdges.begin(); mooreEdgeIter != mooreEdges.end(); ++mooreEdgeIter) {
 				if (mooreNodeIter->name == mooreEdgeIter->fromNode->name) {
                     cout << "\t" <<  mooreEdgeIter->fromNode->name << " " << mooreEdgeIter->toNode->name << " ";
 					//printf("\t%s %s ", mooreEdgeIter->fromNode->name, mooreEdgeIter->toNode->name);
                     cout << std::bitset<4>(mooreEdgeIter->inputs).to_string() << endl;
+                    count++;
 				}
 			}
+            if (count != pow(numInputBits,2)) {
+                cout << "%error: missing inputs for state changes for NODE " << mooreNodeIter->name << "%" << endl;
+            }
 		}
 	}
 }
@@ -251,34 +261,44 @@ void setUpNodes() {
         getline(cin, input);
         while(input.compare("DONE")) {
             int pos = 0;
-            pos = input.find(" ", pos);                          //finds the location of the first space
+            pos = input.find(" ", pos);                        //finds the location of the first space
             option = input.substr(0,pos);                      //option is now the start of the string to the space
             if (option.compare("NODE") == 0) {
-                name = input.substr(pos + 1);                     //name is now the rest of the string (after space 1)
+                name = input.substr(pos + 1);                  //name is now the rest of the string (after space 1)
                 //cout << "name is " << name << endl;
                 nodeMealy nodeMealy_ = nodeMealy(name);
                 //cout << "goes through const" << endl;
                 //cout << nodeMealy_.name << endl;
-                mealyNodes.push_back(nodeMealy_);
-                //cout << "goes through pushback" << endl;
-                cout << mealyNodes.size() << endl;
-                //cout << mealyNodes.back().name << endl;
-                cout << nodeMealy_.name << endl;
+                int isValid = 1;
+                for (mealyNodeIter = mealyNodes.begin(); mealyNodeIter != mealyNodes.end(); ++mealyNodeIter) {
+                    if ((mealyNodeIter->name).compare(name) == 0) {
+                        isValid = 0;
+                    }
+                }
+                if (isValid) {
+                    mealyNodes.push_back(nodeMealy_);
+                    //cout << "goes through pushback" << endl;
+                    cout << mealyNodes.size() << endl;
+                    //cout << mealyNodes.back().name << endl;
+                    cout << nodeMealy_.name << endl;
+                } else {
+                    cout << "ERROR: This input has already been declared " << name << endl;
+                }
             } else if (option.compare("ARC") == 0) {
                 input = input.substr(pos + 1);               //Update input from pos loc; "from to in / out"
-                pos = input.find(" ", 0);                  //finds location of space; index of space
+                pos = input.find(" ", 0);                    //finds location of space; index of space
                 from = input.substr(0,pos);                  //places from; "from"
 
                 input = input.substr(pos + 1);               //Update input from pos loc
                 pos = input.find(" ", 0);                    //finds the next space
                 to = input.substr(0,pos);                    //sets this part to to
 
-                input = input.substr(pos + 1);                   //Update input from pos loc
-                pos = input.find(" ", 0);                       //  ----
+                input = input.substr(pos + 1);               //Update input from pos loc
+                pos = input.find(" ", 0);                    //  ----
                 inputs = input.substr(0,pos);                //  ----
 
                 input = input.substr(pos+3);                 //Updates input to the end of the string (add 2) for '/ '
-                outputs = input;                                //Set this to outputs
+                outputs = input;                             //Set this to outputs
 
                 int count = 0;
                 char * ptr;
@@ -303,7 +323,7 @@ void setUpNodes() {
                     }
                 }
                 if (count!=2) {
-                    cout << "the ARC nodes are not in the array :" << count << endl;
+                    cout << "ERROR!! Either " << to << " or " << from <<" are not in the array :" << endl;
                     getline(cin, input);
                     continue; //asks for next input
                 }
@@ -440,9 +460,12 @@ void setUpNodes() {
                     //cout << edgeMealy_.outputs << endl;
                 }
             } else if (option.compare("GRAPH") == 0) {
+                cout << endl;
                 printGraph();
             } else if (option.compare("TABLE") == 0) {
+                cout << endl;
                 printStateMachine();
+                cout << endl;
             }
             getline(cin, input);
         }
@@ -466,28 +489,40 @@ void setUpNodes() {
         getline(cin, input);
         while(input.compare("DONE")) {
             int pos = 0;
-            pos = input.find(" ", pos);                          //finds the location of the first space
+            pos = input.find(" ", pos);                        //finds the location of the first space
             option = input.substr(0,pos);                      //option is now the start of the string to the space
             if (option.compare("NODE") == 0) {
-                input = input.substr(pos + 1);                   //Update input from pos loc
-                pos = input.find(" ", 0);                       //finds location of space
-                name = input.substr(0,pos);                  //places from
+                input = input.substr(pos + 1);                 //Update input from pos loc
+                pos = input.find(" ", 0);                      //finds location of space
+                name = input.substr(0,pos);                    //places from
 
-                input = input.substr(pos+3);                 //Updates input to the end of the string (add 2) for '/ '
-                outputs = input;                                //Set this to outputs
+                input = input.substr(pos+3);                   //Updates input to the end of the string (add 2) for '/ '
+                outputs = input;                               //Set this to outputs
                 cout << "name: " << name << " output: " << outputs << endl;
+
                 nodeMoore nodeMoore_ = nodeMoore(name, outputs);//creates nodeMoore
-                mooreNodes.push_back(nodeMoore_);
-                cout << mooreNodes.size() << endl;
-                cout << mooreNodes.back().name << endl;
+
+                int isValid = 1;
+                for (mooreNodeIter = mooreNodes.begin(); mooreNodeIter != mooreNodes.end(); mooreNodeIter++) {
+                    if ((mooreNodeIter->name).compare(name) == 0) {
+                        isValid = 0;
+                    }
+                }
+                if (isValid) {
+                    mooreNodes.push_back(nodeMoore_);
+                    cout << mooreNodes.size() << endl;
+                    cout << mooreNodes.back().name << endl;
+                } else {
+                    cout << "ERROR: This input has already been declared " << name << endl;
+                }
             } else if (option.compare("ARC") == 0) {
                 input = input.substr(pos+1);                   //Update input from pos loc
-                pos = input.find(" ", 0);                       //finds location of space
-                from = input.substr(0,pos);                  //places from
+                pos = input.find(" ", 0);                      //finds location of space
+                from = input.substr(0,pos);                    //places from
 
                 input = input.substr(pos+1);                   //Update input from pos loc
-                pos = input.find(" ", 0);                       //finds the next space
-                to = input.substr(0,pos);                    //sets this part to to
+                pos = input.find(" ", 0);                      //finds the next space
+                to = input.substr(0,pos);                      //sets this part to to
 
                 input = input.substr(pos+1);                   //Update input from pos loc
                 inputs = input;
@@ -509,7 +544,7 @@ void setUpNodes() {
                     }
                 }
                 if (count!=2) {
-                    cout << "the ARC nodes are not in the array :" << count << endl;
+                    cout << "ERROR!! Either " << to << " or " << from <<" are not in the array :" << endl;
                     getline(cin, input);
                     continue; //asks for next input
                 }
@@ -651,9 +686,12 @@ void setUpNodes() {
                     //cout << mooreEdges.back().inputs << endl;
                 }
             } else if (option.compare("GRAPH") == 0) {
+                cout << endl;
                 printGraph();
             } else if (option.compare("TABLE") == 0) {
+                cout << endl;
                 printStateMachine();
+                cout << endl;
             }
             getline(cin, input);
         }
@@ -661,9 +699,14 @@ void setUpNodes() {
 }
 
 int main() {
+    /**
+     * Setup asks for iniital parameters.
+     */
     setUp();
+    /**
+     *
+     */
     setUpNodes();
-
 
 	return 0;
 }
