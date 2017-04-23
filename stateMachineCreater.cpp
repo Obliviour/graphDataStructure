@@ -20,13 +20,13 @@ using namespace std;
 
 struct nodeMealy {
     nodeMealy(string name_) : name(name_) {}
-    nodeMealy(): name(NULL) {}
+    nodeMealy(): name("NULL") {}
 	string name;
 };
 
 struct nodeMoore {
     nodeMoore(string name_, string outputs_) : name(name_), outputs(outputs_) {}
-    nodeMoore(): name(NULL), outputs(NULL) {}
+    nodeMoore(): name("NULL"), outputs("NULL") {}
 	string name;
     string outputs;
 };
@@ -34,7 +34,7 @@ struct nodeMoore {
 struct edgeMealy {
     edgeMealy(nodeMealy* fromNode_, nodeMealy* toNode_, long inputs_, string outputs_) :
         fromNode(fromNode_), toNode(toNode_), inputs(inputs_), outputs(outputs_) {}
-    edgeMealy() : fromNode(NULL), toNode(NULL), inputs(0), outputs(NULL) {}
+    edgeMealy() : fromNode(NULL), toNode(NULL), inputs(0), outputs("NULL") {}
 	nodeMealy* fromNode;
 	nodeMealy* toNode;
 	long inputs;
@@ -236,6 +236,7 @@ void setUpNodes() {
 //INTRO PRINT OUT STATEMENTS
         std::cout << "Begin adding NODE and ARC for MEALY State Machine" << endl;
         std::cout << "NODE name" << " or ARC fromNode toNode inputs / outputs" << endl;
+        std::cout << "Type GRAPH to print graph and TABLE to print table" << endl;
         std::cout << "Type DONE to finish" << endl;
 //DEFINE VARIABLES
         string option;
@@ -253,72 +254,83 @@ void setUpNodes() {
             pos = input.find(" ", pos);                          //finds the location of the first space
             option = input.substr(0,pos);                      //option is now the start of the string to the space
             if (option.compare("NODE") == 0) {
-                name = input.substr(pos);                     //name is now the rest of the string (after space 1)
+                name = input.substr(pos + 1);                     //name is now the rest of the string (after space 1)
                 //cout << "name is " << name << endl;
                 nodeMealy nodeMealy_ = nodeMealy(name);
                 //cout << "goes through const" << endl;
                 //cout << nodeMealy_.name << endl;
                 mealyNodes.push_back(nodeMealy_);
                 //cout << "goes through pushback" << endl;
-                //cout << mealyNodes.size() << endl;
-                //cout << nodeMealy_.name << endl;
+                cout << mealyNodes.size() << endl;
+                //cout << mealyNodes.back().name << endl;
+                cout << nodeMealy_.name << endl;
             } else if (option.compare("ARC") == 0) {
-                input = input.substr(pos);                   //Update input from pos loc
-                pos = input.find(" ", 0);                       //finds location of space
-                from = input.substr(0,pos);                  //places from
+                input = input.substr(pos + 1);               //Update input from pos loc; "from to in / out"
+                pos = input.find(" ", 0);                  //finds location of space; index of space
+                from = input.substr(0,pos);                  //places from; "from"
 
-                input = input.substr(pos);                   //Update input from pos loc
-                pos = input.find(" ", 0);                       //finds the next space
+                input = input.substr(pos + 1);               //Update input from pos loc
+                pos = input.find(" ", 0);                    //finds the next space
                 to = input.substr(0,pos);                    //sets this part to to
 
-                input = input.substr(pos);                   //Update input from pos loc
+                input = input.substr(pos + 1);                   //Update input from pos loc
                 pos = input.find(" ", 0);                       //  ----
                 inputs = input.substr(0,pos);                //  ----
 
-                input = input.substr(pos+2);                 //Updates input to the end of the string (add 2) for '/ '
+                input = input.substr(pos+3);                 //Updates input to the end of the string (add 2) for '/ '
                 outputs = input;                                //Set this to outputs
 
                 int count = 0;
                 char * ptr;
+
+                cout << "from node: " << from << " to node: " << to << " inputs: " << inputs << " outputs: " << outputs << endl;
                 /**
                  * Check that the name of the arcs (to and from) exist in the std::list
                  */
-                for (mealyNodeIter = mealyNodes.begin(); mealyNodeIter != mealyNodes.end(); mooreNodeIter++) {
+                for (mealyNodeIter = mealyNodes.begin(); mealyNodeIter != mealyNodes.end(); ++mealyNodeIter) {
+                    //cout << mealyNodeIter->name << endl;
                     if ((mealyNodeIter->name).compare(from) == 0) {
+                        //cout << "from is in arc" << endl;
                         count++;
+                        //cout << &(*mealyNodeIter) <<endl;
                         before = &(*mealyNodeIter);
+                        //cout << &(*mealyNodeIter) <<endl;
                     }
                     if ((mealyNodeIter->name).compare(to) == 0) {
+                        //cout << "to is in arc " << endl;
                         count++;
                         after = &(*mealyNodeIter);
                     }
                 }
                 if (count!=2) {
-                    cout << "the ARC nodes are not in the array :" << count;
-                    cin >> input;
+                    cout << "the ARC nodes are not in the array :" << count << endl;
                     getline(cin, input);
                     continue; //asks for next input
                 }
+                //cout << "now looking at the x possible values" << endl;
                 /**
                  * now lets figure how many x's there are in the string
                  */
                 const char* inputsCONST = inputs.c_str();
-                char* inputsCopy; strcpy(inputsCopy, inputsCONST);
+                char inputsCopy[numInputBits];
+                strcpy(inputsCopy, inputsCONST);
                 int numX = 0;
                 int searchLoc = 0;
                 searchLoc = inputs.find('x',searchLoc);
-                while(searchLoc=-1) {
+                while(searchLoc!=-1) {
                     numX++; //tells me the size
-                    searchLoc = inputs.find('x',searchLoc);
+                    searchLoc = inputs.find('x',searchLoc + 1);
                 }
                 int size = pow(2,numX);
                 long numInput[size];
+                //cout << "size of numInputs " << size << endl;
                 edgeMealy edgeMealy_ = edgeMealy();
                 if (numX == 1) {
                     char* loc = strchr(inputsCopy,'x');
                     *loc = '0';
                     numInput[0] = strtol(inputsCopy, &ptr, 2);
                     *loc = '1';
+                    numInput[1] = strtol(inputsCopy, &ptr, 2);
                     for (int i = 0; i < size; i++) {
                         edgeMealy_ = edgeMealy(before, after, numInput[i], outputs);
                         mealyEdges.push_back(edgeMealy_);
@@ -413,16 +425,24 @@ void setUpNodes() {
                     *loc = '1';
                     *loc2 = '0';
                     *loc3 = '1';
-                    numInput[15] = strtol(inputsCopy, &ptr, 2); //101
+                    numInput[15] = strtol(inputsCopy, &ptr, 2); //1101
                     for (int i = 0; i < size; i++) {
                         edgeMealy_ = edgeMealy(before, after, numInput[i], outputs);
                         mealyEdges.push_back(edgeMealy_);
                     }
                 }
                 else {
-                    edgeMealy edgeMealy_ = edgeMealy(before, after, strtol(inputsCopy, &ptr, 2), outputs);
+                    numInput[0] = strtol(inputsCopy, &ptr, 2);
+                    edgeMealy edgeMealy_ = edgeMealy(before, after, numInput[0], outputs);
                     mealyEdges.push_back(edgeMealy_);
+                    //cout << mealyEdges.size() << endl;
+                    //cout << mealyEdges.back().outputs << endl;
+                    //cout << edgeMealy_.outputs << endl;
                 }
+            } else if (option.compare("GRAPH") == 0) {
+                printGraph();
+            } else if (option.compare("TABLE") == 0) {
+                printStateMachine();
             }
             getline(cin, input);
         }
@@ -431,6 +451,7 @@ void setUpNodes() {
 //INTRO PRINT OUT STATEMENTS
         std::cout << "Begin adding NODE and ARC for MOORE State Machine" << endl;
         std::cout << "NODE name / output" << " or ARC fromNode toNode inputs" << endl;
+        std::cout << "Type GRAPH to print graph and TABLE to print table" << endl;
         std::cout << "Type DONE to finish" << endl;
 //DEFINE VARIABLES
         string option;
@@ -448,27 +469,30 @@ void setUpNodes() {
             pos = input.find(" ", pos);                          //finds the location of the first space
             option = input.substr(0,pos);                      //option is now the start of the string to the space
             if (option.compare("NODE") == 0) {
-                input = input.substr(pos);                   //Update input from pos loc
+                input = input.substr(pos + 1);                   //Update input from pos loc
                 pos = input.find(" ", 0);                       //finds location of space
                 name = input.substr(0,pos);                  //places from
 
-                input = input.substr(pos+2);                 //Updates input to the end of the string (add 2) for '/ '
+                input = input.substr(pos+3);                 //Updates input to the end of the string (add 2) for '/ '
                 outputs = input;                                //Set this to outputs
-
+                cout << "name: " << name << " output: " << outputs << endl;
                 nodeMoore nodeMoore_ = nodeMoore(name, outputs);//creates nodeMoore
                 mooreNodes.push_back(nodeMoore_);
+                cout << mooreNodes.size() << endl;
+                cout << mooreNodes.back().name << endl;
             } else if (option.compare("ARC") == 0) {
-                input = input.substr(pos);                   //Update input from pos loc
+                input = input.substr(pos+1);                   //Update input from pos loc
                 pos = input.find(" ", 0);                       //finds location of space
                 from = input.substr(0,pos);                  //places from
 
-                input = input.substr(pos);                   //Update input from pos loc
+                input = input.substr(pos+1);                   //Update input from pos loc
                 pos = input.find(" ", 0);                       //finds the next space
                 to = input.substr(0,pos);                    //sets this part to to
 
-                input = input.substr(pos);                   //Update input from pos loc
+                input = input.substr(pos+1);                   //Update input from pos loc
                 inputs = input;
 
+                cout << "from: " << from << " to: " << to << " inputs: " << inputs << endl;
                 int count = 0;
                 char * ptr;
                 /**
@@ -485,8 +509,7 @@ void setUpNodes() {
                     }
                 }
                 if (count!=2) {
-                    cout << "the ARC nodes are not in the array :" << count;
-                    cin >> input;
+                    cout << "the ARC nodes are not in the array :" << count << endl;
                     getline(cin, input);
                     continue; //asks for next input
                 }
@@ -494,13 +517,14 @@ void setUpNodes() {
                  * now lets figure how many x's there are in the string
                  */
                 const char* inputsCONST = inputs.c_str();
-                char* inputsCopy; strcpy(inputsCopy, inputsCONST);
+                char inputsCopy[numInputBits];
+                strcpy(inputsCopy, inputsCONST);
                 int numX = 0;
                 int searchLoc = 0;
                 searchLoc = inputs.find('x',searchLoc);
-                while(searchLoc=-1) {
+                while(searchLoc!=-1) {
                     numX++; //tells me the size
-                    searchLoc = inputs.find('x',searchLoc);
+                    searchLoc = inputs.find('x',searchLoc + 1);
                 }
                 int size = pow(2,numX);
                 long numInput[size];
@@ -510,9 +534,12 @@ void setUpNodes() {
                     *loc = '0';
                     numInput[0] = strtol(inputsCopy, &ptr, 2);
                     *loc = '1';
+                    numInput[1] = strtol(inputsCopy, &ptr, 2);
                     for (int i = 0; i < size; i++) {
                         edgeMoore_ = edgeMoore(before, after, numInput[i]);
                         mooreEdges.push_back(edgeMoore_);
+                        //cout << mooreEdges.size() << endl;
+                        //cout << mooreEdges.back().inputs << endl;
                     }
                 } else if (numX == 2) {
                     char* loc = strchr(inputsCopy,'x');
@@ -529,6 +556,8 @@ void setUpNodes() {
                     for (int i = 0; i < size; i++) {
                         edgeMoore_ = edgeMoore(before, after, numInput[i]);
                         mooreEdges.push_back(edgeMoore_);
+                        //cout << mooreEdges.size() << endl;
+                        //cout << mooreEdges.back().inputs << endl;
                     }
                 } else if (numX == 3) {
                     char* loc = strchr(inputsCopy,'x');
@@ -558,6 +587,8 @@ void setUpNodes() {
                     for (int i = 0; i < size; i++) {
                         edgeMoore_ = edgeMoore(before, after, numInput[i]);
                         mooreEdges.push_back(edgeMoore_);
+                        //cout << mooreEdges.size() << endl;
+                        //cout << mooreEdges.back().inputs << endl;
                     }
                 } else if (numX == 4) {
                     char* loc = strchr(inputsCopy,'x');
@@ -608,12 +639,21 @@ void setUpNodes() {
                     for (int i = 0; i < size; i++) {
                         edgeMoore_ = edgeMoore(before, after, numInput[i]);
                         mooreEdges.push_back(edgeMoore_);
+                        //cout << mooreEdges.size() << endl;
+                        //cout << mooreEdges.back().inputs << endl;
                     }
                 }
                 else {
-                    edgeMoore edgeMoore_ = edgeMoore(before, after, strtol(inputsCopy, &ptr, 2));
+                    numInput[0] = strtol(inputsCopy, &ptr, 2);
+                    edgeMoore edgeMoore_ = edgeMoore(before, after, numInput[0]);
                     mooreEdges.push_back(edgeMoore_);
+                    //cout << mooreEdges.size() << endl;
+                    //cout << mooreEdges.back().inputs << endl;
                 }
+            } else if (option.compare("GRAPH") == 0) {
+                printGraph();
+            } else if (option.compare("TABLE") == 0) {
+                printStateMachine();
             }
             getline(cin, input);
         }
