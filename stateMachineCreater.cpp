@@ -11,6 +11,8 @@
 #include <cstdlib>
 #include <stdlib.h>
 #include <cmath>
+#include <bitset>
+
 using namespace std;
 struct nodeMealy {
     nodeMealy(char* name_) : name(name_) {}
@@ -58,7 +60,8 @@ std::list<nodeMoore>::const_iterator mooreNodeIter;
 std::list<edgeMealy>::const_iterator mealyEdgeIter;
 std::list<edgeMoore>::const_iterator mooreEdgeIter;
 
-bool compareMealyName(const nodeMealy &lhs, const nodeMealy &rhs) {
+
+bool compareMealyName(const mealyNode &lhs, const mealyNode &rhs) {
 	int comp = strcmp(lhs.name, rhs.name);
 	if (comp < 0) {
 		return 1;
@@ -67,7 +70,7 @@ bool compareMealyName(const nodeMealy &lhs, const nodeMealy &rhs) {
 	}
 }
 
-bool compareMooreName(const nodeMoore &lhs, const nodeMoore &rhs) {
+bool compareMooreName(const mooreNode &lhs, const mooreNode &rhs) {
 	int comp = strcmp(lhs.name, rhs.name);
 	if (comp < 0) {
 		return 1;
@@ -113,12 +116,29 @@ void printStateMachine() {
 	printElement("Next State / Output", pow(2,numInputBits) * 6 - 19);
 	cout << endl;
 	printElement("", 10);
-	for (int i = 0; i < pow(2,numInputBits); i++) {
-        char* buff;
-		sprintf(i,buff,2);
-		printElement(buff, 8);
-
+	if (isMealy) {
+		for (int i = 0; i < math.pow(2,numInputBits); i++) {
+        printElement(std:bitset<32>(i), 6);
+		}
+		cout << endl;
+		separator = '-';
+		printElement('', pow(2,numInputBits));
+		separator = ' '
+		cout << endl;
+		mealyNodes.sort(&compareMealyName);
+		for (mealyNodeIter = mealyNodes.begin(); mealyNodeIter != mealyNodes.end(); ++mealyNodeIter) {
+			printElement(mealyNodeIter->name, 10);
+			printElement("|", 1);
+			for (mealyEdgeIter = mealyEdges.begin(); mealyEdgeIter!= mealyEdges.end(); ++mealyEdgeIter) {
+				printElement(mealyEdgeIter->toNode, 8);
+				cout << " / "
+				printElement(mealyEdgeIter->outputs, 5);
+				cout << endl;
+			}
+		}
 	}
+
+
 }
 
 
