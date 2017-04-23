@@ -87,7 +87,7 @@ void printGraph() {
 			for (mealyEdgeIter = mealyEdges.begin(); mealyEdgeIter != mealyEdges.end(); ++mealyEdgeIter) {
 				if (mealyNodeIter->name == mealyEdgeIter->fromNode->name) {
 					printf("\t%s %s %i / %s\n", mealyEdgeIter->fromNode->name, mealyEdgeIter->toNode->name,
-										mealyEdgeIter->inputs, mealyEdgeIter->outputs);
+										std::bitset<32>(mealyEdgeIter->inputs), mealyEdgeIter->outputs);
 				}
 			}
 		}
@@ -98,7 +98,7 @@ void printGraph() {
 			for (mooreEdgeIter = mooreEdges.begin(); mooreEdgeIter != mooreEdges.end(); ++mooreEdgeIter) {
 				if (mooreNodeIter->name == mooreEdgeIter->fromNode->name) {
 					printf("\t%s %s %i\n", mooreEdgeIter->fromNode->name, mooreEdgeIter->toNode->name,
-										mooreEdgeIter->inputs);
+										std::bitset<32>(mooreEdgeIter->inputs));
 				}
 			}
 		}
@@ -111,14 +111,16 @@ template<typename T> void printElement(T t, const int& width)
 }
 
 void printStateMachine() {
-	printElement("Curr State", 10);
-	printElement("|", pow(2, numInputBits) * 6 - 19);
-	printElement("Next State / Output", pow(2,numInputBits) * 6 - 19);
-	cout << endl;
-	printElement("", 10);
+
+	bool foundInput = 0;
 	if (isMealy) {
+		printElement("Curr State", 10);
+		printElement("|", pow(2, numInputBits) * 6 - 19);
+		printElement("Next State / Output", pow(2,numInputBits) * 6);
+		cout << endl;
+		printElement("", 10);
 		for (int i = 0; i < pow(2,numInputBits); i++) {
-        printElement(std::bitset<32>(i), 6);
+        	printElement(std::bitset<32>(i), 5);
 		}
 		cout << endl;
 		separator = '-';
@@ -129,12 +131,57 @@ void printStateMachine() {
 		for (mealyNodeIter = mealyNodes.begin(); mealyNodeIter != mealyNodes.end(); ++mealyNodeIter) {
 			printElement(mealyNodeIter->name, 10);
 			printElement("|", 1);
-			for (mealyEdgeIter = mealyEdges.begin(); mealyEdgeIter!= mealyEdges.end(); ++mealyEdgeIter) {
-				printElement(mealyEdgeIter->toNode, 8);
-				cout << " / ";
-				printElement(mealyEdgeIter->outputs, 5);
-				cout << endl;
+			for (int i = 0; i < pow(2,numInputBits); i++) {
+				for (mealyEdgeIter = mealyEdges.begin(); mealyEdgeIter!= mealyEdges.end(); ++mealyEdgeIter) {
+					if (i == mealyEdgeIter->inputs) {
+						printElement(mealyEdgeIter->toNode, 8);
+						cout << " / ";
+						printElement(mealyEdgeIter->outputs, 5);
+						foundInput = 1;
+						break;
+					}
+				}
+				if (!foundInput) {
+					printElement("X",8);
+					cout << " / ";
+					printElement("X",8);
+				}
 			}
+			cout<<endl;
+		}
+	} else {
+		printElement("Curr State /", 10);
+		printElement("|", pow(2, numInputBits) * 6 - 10);
+		printElement("Next State", pow(2,numInputBits) * 6);
+		cout << endl;
+		printElement("Output", 10);
+		for (int i = 0; i < pow(2,numInputBits); i++) {
+        	printElement(std::bitset<32>(i), 5);
+		}
+		cout << endl;
+		separator = '-';
+		printElement(' ', pow(2,numInputBits));
+		separator = ' ';
+		cout << endl;
+		mealyNodes.sort(&compareMealyName);
+		for (mealyNodeIter = mealyNodes.begin(); mealyNodeIter != mealyNodes.end(); ++mealyNodeIter) {
+			printElement(mealyNodeIter->name, 10);
+			cout << " / ";
+        	printElement(mooreNodeIter->outputs)
+			cout << "|"
+			for (int i = 0; i < pow(2,numInputBits); i++) {
+				for (mealyEdgeIter = mealyEdges.begin(); mealyEdgeIter!= mealyEdges.end(); ++mealyEdgeIter) {
+					if (i == mealyEdgeIter->inputs) {
+						printElement(mealyEdgeIter->toNode, 8);
+						foundInput = 1;
+						break;
+					}
+				}
+				if (!foundInput) {
+					printElement("X",8);;
+				}
+			}
+			cout<<endl;
 		}
 	}
 
