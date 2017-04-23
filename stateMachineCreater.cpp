@@ -105,7 +105,7 @@ void printGraph() {
 	} else {
 		mooreNodes.sort(&compareMooreName);
 		for (mooreNodeIter = mooreNodes.begin(); mooreNodeIter != mooreNodes.end(); ++mooreNodeIter) {
-            cout << "NODE: " << mooreEdgeIter->name << " / " << mooreEdgeIter->outputs) << endl;
+            cout << "NODE: " << mooreNodeIter->name << " / " << mooreNodeIter->outputs << endl;
 			//printf("NODE: %s / %s\n", mooreNodeIter->name, mooreNodeIter->outputs);
 			for (mooreEdgeIter = mooreEdges.begin(); mooreEdgeIter != mooreEdges.end(); ++mooreEdgeIter) {
 				if (mooreNodeIter->name == mooreEdgeIter->fromNode->name) {
