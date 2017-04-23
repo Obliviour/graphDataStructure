@@ -10,6 +10,7 @@
 #include <iomanip>
 #include <cstdlib>
 #include <stdlib.h>
+#include <bitset>
 
 using namespace std;
 struct nodeMealy {
@@ -47,6 +48,7 @@ struct edgeMoore {
 int isMealy = 0;
 int numStates = 25;
 int numInputBits = 4;
+char separator = ' ';
 std::list<nodeMealy> mealyNodes;
 std::list<nodeMoore> mooreNodes;
 std::list<edgeMealy> mealyEdges;
@@ -56,6 +58,7 @@ std::list<nodeMealy>::const_iterator mealyNodeIter;
 std::list<nodeMoore>::const_iterator mooreNodeIter;
 std::list<edgeMealy>::const_iterator mealyEdgeIter;
 std::list<edgeMoore>::const_iterator mooreEdgeIter;
+
 
 <<<<<<< HEAD
 bool compareMealyName(const mealyNode &lhs, const mealyNode &rhs) {
@@ -98,8 +101,8 @@ void printGraph() {
 	} else {
 		mooreNodes.sort(&compareMooreName);
 		for (mooreNodeIter = mooreNodes.begin(); mooreNodeIter != mooreNodes.end(); ++mooreNodeIter) {
-			printf("NODE: %s / %s\n", mealyNodeIter->name, mealyNodeIter->outputs);
-			for (mooreEdgeIter = mooreEdgeIter.begin(); mooreEdgeIter != mooreEdges.end(); ++mooreEdgeIter) {
+			printf("NODE: %s / %s\n", mooreNodeIter->name, mooreNodeIter->outputs);
+			for (mooreEdgeIter = mooreEdges.begin(); mooreEdgeIter != mooreEdges.end(); ++mooreEdgeIter) {
 				if (mooreNodeIter == mooreNodeIter->fromNode) {
 					printf("\t%s %s %i\n", mooreEdgeIter->fromNode->name, mooreEdgeIter->toNode->name,
 										mooreEdgeIter->inputs);
@@ -119,13 +122,31 @@ void printStateMachine() {
 	printElement("|", math.pow(2, numInputBits) * 6 - 19);
 	printElement("Next State / Output", math.pow(2,numInputBits) * 6 - 19);
 	cout << endl;
-	printElement("", 10)
-	for (int i = 0; i < math,pow(2,numInputBits); i++) {
-        char* buff;
-		sprintf(i,buff,2);
-		printElement(buff, 8);
+	printElement("", 10);
+	if (isMealy) {
+		for (int i = 0; i < math.pow(2,numInputBits); i++) {
+        printElement(std:bitset<32>(i), 6);
+		}
+		cout << endl;
+		separator = '-';
+		printElement('', pow(2,numInputBits));
+		separator = ' '
+		cout << endl;
+		mealyNodes.sort(&compareMealyName);
+		for (mealyNodeIter = mealyNodes.begin(); mealyNodeIter != mealyNodes.end(); ++mealyNodeIter) {
+			printElement(mealyNodeIter->name, 10);
+			printElement("|", 1);
+			for (mealyEdgeIter = mealyEdges.begin(); mealyEdgeIter!= mealyEdges.end(); ++mealyEdgeIter) {
+				printElement(mealyEdgeIter->toNode, 8);
+				cout << " / "
+				printElement(mealyEdgeIter->outputs, 5);
+				cout << endl;
+			}
+		}
 
 	}
+
+
 }
 
 
