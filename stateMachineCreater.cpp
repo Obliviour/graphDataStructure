@@ -10,7 +10,7 @@
 #include <iomanip>
 #include <cstdlib>
 #include <stdlib.h>
-
+#include <cmath>
 using namespace std;
 struct nodeMealy {
     nodeMealy(char* name_) : name(name_) {}
@@ -47,6 +47,7 @@ struct edgeMoore {
 int isMealy = 0;
 int numStates = 25;
 int numInputBits = 4;
+char separator = ' ';
 std::list<nodeMealy> mealyNodes;
 std::list<nodeMoore> mooreNodes;
 std::list<edgeMealy> mealyEdges;
@@ -81,7 +82,7 @@ void printGraph() {
 		for (mealyNodeIter = mealyNodes.begin(); mealyNodeIter != mealyNodes.end(); ++mealyNodeIter) {
 			printf("NODE: %s\n", mealyNodeIter->name);
 			for (mealyEdgeIter = mealyEdges.begin(); mealyEdgeIter != mealyEdges.end(); ++mealyEdgeIter) {
-				if (mealyNodeIter == mealyEdgeIter->fromNode) {
+				if (mealyNodeIter->name == mealyEdgeIter->fromNode->name) {
 					printf("\t%s %s %i / %s\n", mealyEdgeIter->fromNode->name, mealyEdgeIter->toNode->name,
 										mealyEdgeIter->inputs, mealyEdgeIter->outputs);
 				}
@@ -90,9 +91,9 @@ void printGraph() {
 	} else {
 		mooreNodes.sort(&compareMooreName);
 		for (mooreNodeIter = mooreNodes.begin(); mooreNodeIter != mooreNodes.end(); ++mooreNodeIter) {
-			printf("NODE: %s / %s\n", mealyNodeIter->name, mealyNodeIter->outputs);
-			for (mooreEdgeIter = mooreEdgeIter.begin(); mooreEdgeIter != mooreEdges.end(); ++mooreEdgeIter) {
-				if (mooreNodeIter == mooreNodeIter->fromNode) {
+			printf("NODE: %s / %s\n", mooreNodeIter->name, mooreNodeIter->outputs);
+			for (mooreEdgeIter = mooreEdges.begin(); mooreEdgeIter != mooreEdges.end(); ++mooreEdgeIter) {
+				if (mooreNodeIter->name == mooreEdgeIter->fromNode->name) {
 					printf("\t%s %s %i\n", mooreEdgeIter->fromNode->name, mooreEdgeIter->toNode->name,
 										mooreEdgeIter->inputs);
 				}
@@ -108,11 +109,11 @@ template<typename T> void printElement(T t, const int& width)
 
 void printStateMachine() {
 	printElement("Curr State", 10);
-	printElement("|", math.pow(2, numInputBits) * 6 - 19);
-	printElement("Next State / Output", math.pow(2,numInputBits) * 6 - 19);
+	printElement("|", pow(2, numInputBits) * 6 - 19);
+	printElement("Next State / Output", pow(2,numInputBits) * 6 - 19);
 	cout << endl;
-	printElement("", 10)
-	for (int i = 0; i < math,pow(2,numInputBits); i++) {
+	printElement("", 10);
+	for (int i = 0; i < pow(2,numInputBits); i++) {
         char* buff;
 		sprintf(i,buff,2);
 		printElement(buff, 8);
