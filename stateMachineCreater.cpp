@@ -55,7 +55,7 @@ std::list<nodeMoore>::const_iterator mooreNodeIter;
 std::list<edgeMealy>::const_iterator mealyEdgeIter;
 std::list<edgeMoore>::const_iterator mooreEdgeIter;
 
-bool compareMealyName(const mealyNodes &lhs, const mealyNodes &rhs) {
+bool compareMealyName(const mealyNode &lhs, const mealyNode &rhs) {
 	int comp = strcmp(lhs.name, rhs.name);
 	if (comp < 0) {
 		return 1;
@@ -64,7 +64,7 @@ bool compareMealyName(const mealyNodes &lhs, const mealyNodes &rhs) {
 	}
 }
 
-bool compareMooreName(const mooreNodes &lhs, const mooreNodes &rhs) {
+bool compareMooreName(const mooreNode &lhs, const mooreNode &rhs) {
 	int comp = strcmp(lhs.name, rhs.name);
 	if (comp < 0) {
 		return 1;
@@ -75,7 +75,7 @@ bool compareMooreName(const mooreNodes &lhs, const mooreNodes &rhs) {
 
 void printGraph() {
 	if (isMealy) {
-		mealyNodes.sort(&compareMealyName)
+		mealyNodes.sort(&compareMealyName);
 		for (mealyNodeIter = mealyNodes.begin(); mealyNodeIter != mealyNodes.end(); ++mealyNodeIter) {
 			printf("NODE: %s\n", mealyNodeIter->name);
 			for (mealyEdgeIter = mealyEdges.begin(); mealyEdgeIter != mealyEdges.end(); ++mealyEdgeIter) {
