@@ -61,7 +61,7 @@ std::list<edgeMealy>::const_iterator mealyEdgeIter;
 std::list<edgeMoore>::const_iterator mooreEdgeIter;
 
 
-bool compareMealyName(const mealyNode &lhs, const mealyNode &rhs) {
+bool compareMealyName(const nodeMealy &lhs, const nodeMealy &rhs) {
 	int comp = strcmp(lhs.name, rhs.name);
 	if (comp < 0) {
 		return 1;
@@ -70,7 +70,7 @@ bool compareMealyName(const mealyNode &lhs, const mealyNode &rhs) {
 	}
 }
 
-bool compareMooreName(const mooreNode &lhs, const mooreNode &rhs) {
+bool compareMooreName(const nodeMoore &lhs, const nodeMoore &rhs) {
 	int comp = strcmp(lhs.name, rhs.name);
 	if (comp < 0) {
 		return 1;
@@ -117,13 +117,13 @@ void printStateMachine() {
 	cout << endl;
 	printElement("", 10);
 	if (isMealy) {
-		for (int i = 0; i < math.pow(2,numInputBits); i++) {
-        printElement(std:bitset<32>(i), 6);
+		for (int i = 0; i < pow(2,numInputBits); i++) {
+        printElement(std::bitset<32>(i), 6);
 		}
 		cout << endl;
 		separator = '-';
-		printElement('', pow(2,numInputBits));
-		separator = ' '
+		printElement(' ', pow(2,numInputBits));
+		separator = ' ';
 		cout << endl;
 		mealyNodes.sort(&compareMealyName);
 		for (mealyNodeIter = mealyNodes.begin(); mealyNodeIter != mealyNodes.end(); ++mealyNodeIter) {
@@ -131,7 +131,7 @@ void printStateMachine() {
 			printElement("|", 1);
 			for (mealyEdgeIter = mealyEdges.begin(); mealyEdgeIter!= mealyEdges.end(); ++mealyEdgeIter) {
 				printElement(mealyEdgeIter->toNode, 8);
-				cout << " / "
+				cout << " / ";
 				printElement(mealyEdgeIter->outputs, 5);
 				cout << endl;
 			}
@@ -173,15 +173,142 @@ void setUp() {
 }
 
 void setUpNodes() {
+    string input = "";
     if (isMealy) {
         std::cout << "Begin adding NODE and ARC for MEALY State Machine" << endl;
         std::cout << "NODE name" << " or ARC fromNode toNode inputs / outputs" << endl;
         std::cout << "Type DONE to finish" << endl;
+        getline(cin, input);
+        char* option = "";
+        char* name = "";
+        char* outputs = "";
+        char* from = "";
+        char* to = "";
+        char* inputs = "";
+        while(strcmp(input, "DONE")) {
+            option = strtok(input, " ");
+            if (strcmp(option, "NODE") == 0) {
+                name = strtok(NULL, " ");
+                nodeMealy nodeMealy_ = nodeMoore(name);
+                mealyNodes.push_back(nodeMealy_);
+            } else if (strcmp(option, "ARC") == 0) {
+                from = strtok(NULL, " ");
+                to = strtok(NULL, " ");
+                inputs = strtok(NULL, " ");
+                outputs = strtok(NULL, " /");
+                int count = 0;
+                char * ptr;
+                // check that the arcs exist
+                for (mealyNodeIter = mealyNodes.begin(); mealyNodeIter != mealyNodes.end(); mooreNodeIter++) {
+                    if (strcmp(mealyNodeIter-> name,from) == 0) count++;
+                    if (strcmp(mealyNodeIter-> name, to) == 0) count++;
+                }
+                if (count!=2) {
+                    cout << "the ARC nodes are not in the array :" << count;
+                    getline(cin,input);
+                    continue; //asks for next input
+                }
+                // now lets figure how many x's there are in the string
+                int numX = 0;
+                char* inputsCopy;
+                strcpy(inputsCopy,inputs); //copy of the input array
+                while(NULL!=strpbrk(inputs, 'xX')) {
+                    numX++; //tells me the size
+                }
+                if (numX !=0) {
+                    numX*=2;
+                    long numInput[numX];
+                    int loc = strpbrk(inputsCopy,'xX');
+                    for(int i = 0; i < numX; i++) {
+                        char* option1 = NULL;
+                        char* option2 = NULL;
+                        inputsCopy[loc] = '0';
+                        strcpy(option1, inputsCopy);
+                        inputsCopy[loc] = '1';
+                        strcpy(option2, inputsCopy);
+                        numInput[++i] = strtol(option1, &ptr, 2);
+                        numInput[i] = strtol(option2, &ptr, 2);
+                        loc = strpbrk(inputsCopy,'xX');
+                        edgeMealy edgeMealy_ = edgeMealy(from, to, numInput[i-1], outputs);
+                        mealyEdges.push_back(edgeMealy_);
+                        edgeMealy edgeMealy_ = edgeMealy(from, to, numInput[i-1], outputs);
+                        mealyEdges.push_back(edgeMealy_);
+                    }
+                } else {
+                    edgeMealy edgeMealy_ = edgeMealy(from, to, strtol(inputs, &ptr, 2), outputs)
+                    mealyEdges.push_back(edgeMealy_);
+                }
+            }
+            getline(cin, input); //at the end of the
+        }
     }
     else {
         std::cout << "Begin adding NODE and ARC for MOORE State Machine" << endl;
         std::cout << "NODE name / output" << " or ARC fromNode toNode inputs" << endl;
         std::cout << "Type DONE to finish" << endl;
+        getline(cin, input);
+        char* option = "";
+        char* name = "";
+        char* outputs = "";
+        char* from = "";
+        char* to = "";
+        char* inputs = "";
+        while(strcmp(input, "DONE")) {
+            option = strtok(input, " ");
+            if (strcmp(option, "NODE") == 0) {
+                name = strtok(NULL, " /");
+                outputs = strtok(NULL, " /");
+                nodeMoore nodeMoore_ = nodeMoore(name, outputs);
+                mooreNodes.push_back(nodeMoore_);
+            } else if (strcmp(option, "ARC") == 0) {
+                from = strtok(NULL, " ");
+                to = strtok(NULL, " ");
+                inputs = strtok(NULL, " ");
+                int count = 0;
+                char * ptr;
+                // check that the arcs exist
+                for (mooreNodeIter = mooreNodes.begin(); mooreNodeIter != mooreNodes.end(); mooreNodeIter++) {
+                    if (strcmp(mooreNodeIter-> name,from) == 0) count++;
+                    if (strcmp(mooreNodeIter-> name, to) == 0) count++;
+                }
+                if (count!=2) {
+                    cout << "the ARC nodes are not in the array :" << count;
+                    getline(cin,input);
+                    continue; //asks for next input
+                }
+                // now lets figure how many x's there are in the string
+                int numX = 0;
+                char* inputsCopy;
+                strcpy(inputsCopy,inputs); //copy of the input array
+                while(NULL!=strpbrk(inputs, 'xX')) {
+                    numX++; //tells me the size
+                }
+                if (numX !=0) {
+                    numX*=2;
+                    long numInput[numX];
+                    int loc = strpbrk(inputsCopy,'xX');
+                    for(int i = 0; i < numX; i++) {
+                        char* option1 = NULL;
+                        char* option2 = NULL;
+                        inputsCopy[loc] = '0';
+                        strcpy(option1, inputsCopy);
+                        inputsCopy[loc] = '1';
+                        strcpy(option2, inputsCopy);
+                        numInput[++i] = strtol(option1, &ptr, 2);
+                        numInput[i] = strtol(option2, &ptr, 2);
+                        loc = strpbrk(inputsCopy,'xX');
+                        edgeMoore edgeMoore_ = edgeMoore(from, to, numInput[i-1]);
+                        mooreEdges.push_back(edgeMoore_);
+                        edgeMoore edgeMoore_ = edgeMoore(from, to, numInput[i-1]);
+                        mooreEdges.push_back(edgeMoore_);
+                    }
+                } else {
+                    edgeMoore edgeMoore_ = edgeMoore(from, to, strtol(inputs, &ptr, 2))
+                    mooresEdges.push_back(edgeMoore_);
+                }
+            }
+            getline(cin, input); //at the end of the
+        }
     }
 }
 
