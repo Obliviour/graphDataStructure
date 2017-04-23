@@ -12,36 +12,42 @@
 #include <stdlib.h>
 #include <cmath>
 #include <bitset>
+#include <string>
 
 using namespace std;
-struct nodeMealy {
-    nodeMealy(char* name_) : name(name_) {}
-	char* name;
-};
 
+//----------STRUCT DECLARATIONS---------//
+
+struct nodeMealy {
+    nodeMealy(string name_) : name(name_) {}
+    nodeMealy(): name(NULL) {}
+	string name;
+};
 
 struct nodeMoore {
-    nodeMoore(char* name_, char* outputs_) : name(name_), outputs(outputs_) {}
-	char* name;
-    char* outputs;
+    nodeMoore(string name_, string outputs_) : name(name_), outputs(outputs_) {}
+    nodeMoore(): name(NULL), outputs(NULL) {}
+	string name;
+    string outputs;
 };
 
-
 struct edgeMealy {
-    edgeMealy(nodeMealy* fromNode_, nodeMealy* toNode_, int inputs_, char* outputs_) :
+    edgeMealy(nodeMealy* fromNode_, nodeMealy* toNode_, long inputs_, string outputs_) :
         fromNode(fromNode_), toNode(toNode_), inputs(inputs_), outputs(outputs_) {}
+    edgeMealy() : fromNode(NULL), toNode(NULL), inputs(0), outputs(NULL) {}
 	nodeMealy* fromNode;
 	nodeMealy* toNode;
-	int inputs;
-	char* outputs;
+	long inputs;
+	string outputs;
 };
 
 struct edgeMoore {
-    edgeMoore(nodeMoore* fromNode_, nodeMoore* toNode_, int inputs_) :
+    edgeMoore(nodeMoore* fromNode_, nodeMoore* toNode_, long inputs_) :
         fromNode(fromNode_), toNode(toNode_), inputs(inputs_) {}
+    edgeMoore() : fromNode(NULL), toNode(NULL), inputs(0) {}
 	nodeMoore* fromNode;
 	nodeMoore* toNode;
-	int inputs;
+	long inputs;
 };
 
 //----------GLOBAL VARIABLES---------//
@@ -55,14 +61,15 @@ std::list<nodeMoore> mooreNodes;
 std::list<edgeMealy> mealyEdges;
 std::list<edgeMoore> mooreEdges;
 
-std::list<nodeMealy>::const_iterator mealyNodeIter;
-std::list<nodeMoore>::const_iterator mooreNodeIter;
-std::list<edgeMealy>::const_iterator mealyEdgeIter;
-std::list<edgeMoore>::const_iterator mooreEdgeIter;
+std::list<nodeMealy>::iterator mealyNodeIter;
+std::list<nodeMoore>::iterator mooreNodeIter;
+std::list<edgeMealy>::iterator mealyEdgeIter;
+std::list<edgeMoore>::iterator mooreEdgeIter;
 
 
 bool compareMealyName(const nodeMealy &lhs, const nodeMealy &rhs) {
-	int comp = strcmp(lhs.name, rhs.name);
+    int comp = (lhs.name).compare(rhs.name);
+    //int comp = strcmp(lhs.name, rhs.name);
 	if (comp < 0) {
 		return 1;
 	} else if (comp > 0) {
@@ -71,7 +78,8 @@ bool compareMealyName(const nodeMealy &lhs, const nodeMealy &rhs) {
 }
 
 bool compareMooreName(const nodeMoore &lhs, const nodeMoore &rhs) {
-	int comp = strcmp(lhs.name, rhs.name);
+    int comp = (lhs.name).compare(rhs.name);
+    //int comp = strcmp(lhs.name, rhs.name);
 	if (comp < 0) {
 		return 1;
 	} else if (comp > 0) {
@@ -83,22 +91,27 @@ void printGraph() {
 	if (isMealy) {
 		mealyNodes.sort(&compareMealyName);
 		for (mealyNodeIter = mealyNodes.begin(); mealyNodeIter != mealyNodes.end(); ++mealyNodeIter) {
-			printf("NODE: %s\n", mealyNodeIter->name);
+            cout << "NODE: " << mealyNodeIter->name << endl;
+			//printf("NODE: %s\n", mealyNodeIter->name);
 			for (mealyEdgeIter = mealyEdges.begin(); mealyEdgeIter != mealyEdges.end(); ++mealyEdgeIter) {
 				if (mealyNodeIter->name == mealyEdgeIter->fromNode->name) {
-					printf("\t%s %s %i / %s\n", mealyEdgeIter->fromNode->name, mealyEdgeIter->toNode->name,
-										std::bitset<32>(mealyEdgeIter->inputs), mealyEdgeIter->outputs);
+                    cout << "\t" <<  mealyEdgeIter->fromNode->name << " " << mealyEdgeIter->toNode->name << " ";
+                    //NOTE I think this \n isnt suppose to be here
+                    //printf("\t%s %s \n", mealyEdgeIter->fromNode->name, mealyEdgeIter->toNode->name);
+                    cout << std::bitset<4>(mealyEdgeIter->inputs).to_string() << " / " << mealyEdgeIter->outputs << endl;
 				}
 			}
 		}
 	} else {
 		mooreNodes.sort(&compareMooreName);
 		for (mooreNodeIter = mooreNodes.begin(); mooreNodeIter != mooreNodes.end(); ++mooreNodeIter) {
-			printf("NODE: %s / %s\n", mooreNodeIter->name, mooreNodeIter->outputs);
+            cout << "NODE: " << mooreEdgeIter->name << " / " << mooreEdgeIter->outputs) << endl;
+			//printf("NODE: %s / %s\n", mooreNodeIter->name, mooreNodeIter->outputs);
 			for (mooreEdgeIter = mooreEdges.begin(); mooreEdgeIter != mooreEdges.end(); ++mooreEdgeIter) {
 				if (mooreNodeIter->name == mooreEdgeIter->fromNode->name) {
-					printf("\t%s %s %i\n", mooreEdgeIter->fromNode->name, mooreEdgeIter->toNode->name,
-										std::bitset<32>(mooreEdgeIter->inputs));
+                    cout << "\t" <<  mooreEdgeIter->fromNode->name << " " << mooreEdgeIter->toNode->name << " ";
+					//printf("\t%s %s ", mooreEdgeIter->fromNode->name, mooreEdgeIter->toNode->name);
+                    cout << std::bitset<4>(mooreEdgeIter->inputs).to_string() << endl;
 				}
 			}
 		}
@@ -120,7 +133,7 @@ void printStateMachine() {
 		cout << endl;
 		printElement("", 10);
 		for (int i = 0; i < pow(2,numInputBits); i++) {
-        	printElement(std::bitset<32>(i), 5);
+        	printElement(std::bitset<4>(i), 5);
 		}
 		cout << endl;
 		separator = '-';
@@ -156,7 +169,7 @@ void printStateMachine() {
 		cout << endl;
 		printElement("Output", 10);
 		for (int i = 0; i < pow(2,numInputBits); i++) {
-        	printElement(std::bitset<32>(i), 5);
+        	printElement(std::bitset<4>(i), 5);
 		}
 		cout << endl;
 		separator = '-';
@@ -165,10 +178,10 @@ void printStateMachine() {
 		cout << endl;
 		mealyNodes.sort(&compareMealyName);
 		for (mealyNodeIter = mealyNodes.begin(); mealyNodeIter != mealyNodes.end(); ++mealyNodeIter) {
-			printElement(mealyNodeIter->name, 10);
+			printElement(mealyNodeIter->name, 8);
 			cout << " / ";
-        	printElement(mooreNodeIter->outputs)
-			cout << "|"
+        	printElement(mooreNodeIter->outputs, 5);
+			cout << "|";
 			for (int i = 0; i < pow(2,numInputBits); i++) {
 				for (mealyEdgeIter = mealyEdges.begin(); mealyEdgeIter!= mealyEdges.end(); ++mealyEdgeIter) {
 					if (i == mealyEdgeIter->inputs) {
@@ -178,14 +191,12 @@ void printStateMachine() {
 					}
 				}
 				if (!foundInput) {
-					printElement("X",8);;
+					printElement("X",8);
 				}
 			}
 			cout<<endl;
 		}
 	}
-
-
 }
 
 
@@ -220,146 +231,399 @@ void setUp() {
 }
 
 void setUpNodes() {
-    string input = "";
+    string input;
     if (isMealy) {
+//INTRO PRINT OUT STATEMENTS
         std::cout << "Begin adding NODE and ARC for MEALY State Machine" << endl;
         std::cout << "NODE name" << " or ARC fromNode toNode inputs / outputs" << endl;
         std::cout << "Type DONE to finish" << endl;
+//DEFINE VARIABLES
+        string option;
+        string name;
+        string outputs;
+        string from;
+        string to;
+        string inputs;
+        nodeMealy* before = NULL;
+        nodeMealy* after = NULL;
+//Begin parsing
         getline(cin, input);
-        char* option = "";
-        char* name = "";
-        char* outputs = "";
-        char* from = "";
-        char* to = "";
-        char* inputs = "";
-        while(strcmp(input, "DONE")) {
-            option = strtok(input, " ");
-            if (strcmp(option, "NODE") == 0) {
-                name = strtok(NULL, " ");
-                nodeMealy nodeMealy_ = nodeMoore(name);
+        while(input.compare("DONE")) {
+            int pos = 0;
+            pos = input.find(" ", pos);                          //finds the location of the first space
+            option = input.substr(0,pos);                      //option is now the start of the string to the space
+            if (option.compare("NODE") == 0) {
+                name = input.substr(pos);                     //name is now the rest of the string (after space 1)
+                //cout << "name is " << name << endl;
+                nodeMealy nodeMealy_ = nodeMealy(name);
+                //cout << "goes through const" << endl;
+                //cout << nodeMealy_.name << endl;
                 mealyNodes.push_back(nodeMealy_);
-            } else if (strcmp(option, "ARC") == 0) {
-                from = strtok(NULL, " ");
-                to = strtok(NULL, " ");
-                inputs = strtok(NULL, " ");
-                outputs = strtok(NULL, " /");
+                //cout << "goes through pushback" << endl;
+                //cout << mealyNodes.size() << endl;
+                //cout << nodeMealy_.name << endl;
+            } else if (option.compare("ARC") == 0) {
+                input = input.substr(pos);                   //Update input from pos loc
+                pos = input.find(" ", 0);                       //finds location of space
+                from = input.substr(0,pos);                  //places from
+
+                input = input.substr(pos);                   //Update input from pos loc
+                pos = input.find(" ", 0);                       //finds the next space
+                to = input.substr(0,pos);                    //sets this part to to
+
+                input = input.substr(pos);                   //Update input from pos loc
+                pos = input.find(" ", 0);                       //  ----
+                inputs = input.substr(0,pos);                //  ----
+
+                input = input.substr(pos+2);                 //Updates input to the end of the string (add 2) for '/ '
+                outputs = input;                                //Set this to outputs
+
                 int count = 0;
                 char * ptr;
-                // check that the arcs exist
+                /**
+                 * Check that the name of the arcs (to and from) exist in the std::list
+                 */
                 for (mealyNodeIter = mealyNodes.begin(); mealyNodeIter != mealyNodes.end(); mooreNodeIter++) {
-                    if (strcmp(mealyNodeIter-> name,from) == 0) count++;
-                    if (strcmp(mealyNodeIter-> name, to) == 0) count++;
+                    if ((mealyNodeIter->name).compare(from) == 0) {
+                        count++;
+                        before = &(*mealyNodeIter);
+                    }
+                    if ((mealyNodeIter->name).compare(to) == 0) {
+                        count++;
+                        after = &(*mealyNodeIter);
+                    }
                 }
                 if (count!=2) {
                     cout << "the ARC nodes are not in the array :" << count;
-                    getline(cin,input);
+                    cin >> input;
+                    getline(cin, input);
                     continue; //asks for next input
                 }
-                // now lets figure how many x's there are in the string
+                /**
+                 * now lets figure how many x's there are in the string
+                 */
+                const char* inputsCONST = inputs.c_str();
+                char* inputsCopy; strcpy(inputsCopy, inputsCONST);
                 int numX = 0;
-                char* inputsCopy;
-                strcpy(inputsCopy,inputs); //copy of the input array
-                while(NULL!=strpbrk(inputs, 'xX')) {
+                int searchLoc = 0;
+                searchLoc = inputs.find('x',searchLoc);
+                while(searchLoc=-1) {
                     numX++; //tells me the size
+                    searchLoc = inputs.find('x',searchLoc);
                 }
-                if (numX !=0) {
-                    numX*=2;
-                    long numInput[numX];
-                    int loc = strpbrk(inputsCopy,'xX');
-                    for(int i = 0; i < numX; i++) {
-                        char* option1 = NULL;
-                        char* option2 = NULL;
-                        inputsCopy[loc] = '0';
-                        strcpy(option1, inputsCopy);
-                        inputsCopy[loc] = '1';
-                        strcpy(option2, inputsCopy);
-                        numInput[++i] = strtol(option1, &ptr, 2);
-                        numInput[i] = strtol(option2, &ptr, 2);
-                        loc = strpbrk(inputsCopy,'xX');
-                        edgeMealy edgeMealy_ = edgeMealy(from, to, numInput[i-1], outputs);
-                        mealyEdges.push_back(edgeMealy_);
-                        edgeMealy edgeMealy_ = edgeMealy(from, to, numInput[i-1], outputs);
+                int size = pow(2,numX);
+                long numInput[size];
+                edgeMealy edgeMealy_ = edgeMealy();
+                if (numX == 1) {
+                    char* loc = strchr(inputsCopy,'x');
+                    *loc = '0';
+                    numInput[0] = strtol(inputsCopy, &ptr, 2);
+                    *loc = '1';
+                    for (int i = 0; i < size; i++) {
+                        edgeMealy_ = edgeMealy(before, after, numInput[i], outputs);
                         mealyEdges.push_back(edgeMealy_);
                     }
-                } else {
-                    edgeMealy edgeMealy_ = edgeMealy(from, to, strtol(inputs, &ptr, 2), outputs)
+                } else if (numX == 2) {
+                    char* loc = strchr(inputsCopy,'x');
+                    *loc = '0';
+                    char* loc2 = strchr(inputsCopy,'x');
+                    *loc2 = '0';
+                    numInput[0] = strtol(inputsCopy, &ptr, 2); //00
+                    *loc2 = '1';
+                    numInput[1] = strtol(inputsCopy, &ptr, 2); //01
+                    *loc = '1';
+                    numInput[2] = strtol(inputsCopy, &ptr, 2); //11
+                    *loc2 = '0';
+                    numInput[3] = strtol(inputsCopy, &ptr, 2); //10
+                    for (int i = 0; i < size; i++) {
+                        edgeMealy_ = edgeMealy(before, after, numInput[i], outputs);
+                        mealyEdges.push_back(edgeMealy_);
+                    }
+                } else if (numX == 3) {
+                    char* loc = strchr(inputsCopy,'x');
+                    *loc = '0';
+                    char* loc2 = strchr(inputsCopy,'x');
+                    *loc2 = '0';
+                    char* loc3 = strchr(inputsCopy,'x');
+                    *loc3 = '0';
+                    numInput[0] = strtol(inputsCopy, &ptr, 2); //000
+                    *loc3 = '1';
+                    numInput[1] = strtol(inputsCopy, &ptr, 2); //001
+                    *loc2 = '1';
+                    numInput[2] = strtol(inputsCopy, &ptr, 2); //011
+                    *loc = '1';
+                    numInput[3] = strtol(inputsCopy, &ptr, 2); //111
+                    *loc3 = '0';
+                    numInput[4] = strtol(inputsCopy, &ptr, 2); //110
+                    *loc2 = '0';
+                    numInput[5] = strtol(inputsCopy, &ptr, 2); //100
+                    *loc = '0';
+                    *loc2 = '1';
+                    numInput[6] = strtol(inputsCopy, &ptr, 2); //010
+                    *loc = '1';
+                    *loc2 = '0';
+                    *loc3 = '1';
+                    numInput[7] = strtol(inputsCopy, &ptr, 2); //101
+                    for (int i = 0; i < size; i++) {
+                        edgeMealy_ = edgeMealy(before, after, numInput[i], outputs);
+                        mealyEdges.push_back(edgeMealy_);
+                    }
+                } else if (numX == 4) {
+                    char* loc = strchr(inputsCopy,'x');
+                    *loc = '0';
+                    char* loc2 = strchr(inputsCopy,'x');
+                    *loc2 = '0';
+                    char* loc3 = strchr(inputsCopy,'x');
+                    *loc3 = '0';
+                    char* loc4 = strchr(inputsCopy,'x');
+                    *loc4 = '0';
+                    numInput[0] = strtol(inputsCopy, &ptr, 2); //0000
+                    *loc3 = '1';
+                    numInput[1] = strtol(inputsCopy, &ptr, 2); //0001
+                    *loc2 = '1';
+                    numInput[2] = strtol(inputsCopy, &ptr, 2); //0011
+                    *loc = '1';
+                    numInput[3] = strtol(inputsCopy, &ptr, 2); //0111
+                    *loc3 = '0';
+                    numInput[4] = strtol(inputsCopy, &ptr, 2); //0110
+                    *loc2 = '0';
+                    numInput[5] = strtol(inputsCopy, &ptr, 2); //0100
+                    *loc = '0';
+                    *loc2 = '1';
+                    numInput[6] = strtol(inputsCopy, &ptr, 2); //0010
+                    *loc = '1';
+                    *loc2 = '0';
+                    *loc3 = '1';
+                    numInput[7] = strtol(inputsCopy, &ptr, 2); //1101
+                    *loc4 = '1';
+                    numInput[8] = strtol(inputsCopy, &ptr, 2); //1000
+                    *loc3 = '1';
+                    numInput[9] = strtol(inputsCopy, &ptr, 2); //1001
+                    *loc2 = '1';
+                    numInput[10] = strtol(inputsCopy, &ptr, 2); //1011
+                    *loc = '1';
+                    numInput[11] = strtol(inputsCopy, &ptr, 2); //1111
+                    *loc3 = '0';
+                    numInput[12] = strtol(inputsCopy, &ptr, 2); //1110
+                    *loc2 = '0';
+                    numInput[13] = strtol(inputsCopy, &ptr, 2); //1100
+                    *loc = '0';
+                    *loc2 = '1';
+                    numInput[14] = strtol(inputsCopy, &ptr, 2); //1010
+                    *loc = '1';
+                    *loc2 = '0';
+                    *loc3 = '1';
+                    numInput[15] = strtol(inputsCopy, &ptr, 2); //101
+                    for (int i = 0; i < size; i++) {
+                        edgeMealy_ = edgeMealy(before, after, numInput[i], outputs);
+                        mealyEdges.push_back(edgeMealy_);
+                    }
+                }
+                else {
+                    edgeMealy edgeMealy_ = edgeMealy(before, after, strtol(inputsCopy, &ptr, 2), outputs);
                     mealyEdges.push_back(edgeMealy_);
                 }
             }
-            getline(cin, input); //at the end of the
+            getline(cin, input);
         }
     }
     else {
+//INTRO PRINT OUT STATEMENTS
         std::cout << "Begin adding NODE and ARC for MOORE State Machine" << endl;
         std::cout << "NODE name / output" << " or ARC fromNode toNode inputs" << endl;
         std::cout << "Type DONE to finish" << endl;
+//DEFINE VARIABLES
+        string option;
+        string name;
+        string outputs;
+        string from;
+        string to;
+        string inputs;
+        nodeMoore* before = NULL;
+        nodeMoore* after = NULL;
+//Begin parsing
         getline(cin, input);
-        char* option = "";
-        char* name = "";
-        char* outputs = "";
-        char* from = "";
-        char* to = "";
-        char* inputs = "";
-        while(strcmp(input, "DONE")) {
-            option = strtok(input, " ");
-            if (strcmp(option, "NODE") == 0) {
-                name = strtok(NULL, " /");
-                outputs = strtok(NULL, " /");
-                nodeMoore nodeMoore_ = nodeMoore(name, outputs);
+        while(input.compare("DONE")) {
+            int pos = 0;
+            pos = input.find(" ", pos);                          //finds the location of the first space
+            option = input.substr(0,pos);                      //option is now the start of the string to the space
+            if (option.compare("NODE") == 0) {
+                input = input.substr(pos);                   //Update input from pos loc
+                pos = input.find(" ", 0);                       //finds location of space
+                name = input.substr(0,pos);                  //places from
+
+                input = input.substr(pos+2);                 //Updates input to the end of the string (add 2) for '/ '
+                outputs = input;                                //Set this to outputs
+
+                nodeMoore nodeMoore_ = nodeMoore(name, outputs);//creates nodeMoore
                 mooreNodes.push_back(nodeMoore_);
-            } else if (strcmp(option, "ARC") == 0) {
-                from = strtok(NULL, " ");
-                to = strtok(NULL, " ");
-                inputs = strtok(NULL, " ");
+            } else if (option.compare("ARC") == 0) {
+                input = input.substr(pos);                   //Update input from pos loc
+                pos = input.find(" ", 0);                       //finds location of space
+                from = input.substr(0,pos);                  //places from
+
+                input = input.substr(pos);                   //Update input from pos loc
+                pos = input.find(" ", 0);                       //finds the next space
+                to = input.substr(0,pos);                    //sets this part to to
+
+                input = input.substr(pos);                   //Update input from pos loc
+                inputs = input;
+
                 int count = 0;
                 char * ptr;
-                // check that the arcs exist
+                /**
+                 * Check that the name of the arcs (to and from) exist in the std::list
+                 */
                 for (mooreNodeIter = mooreNodes.begin(); mooreNodeIter != mooreNodes.end(); mooreNodeIter++) {
-                    if (strcmp(mooreNodeIter-> name,from) == 0) count++;
-                    if (strcmp(mooreNodeIter-> name, to) == 0) count++;
+                    if ((mooreNodeIter->name).compare(from) == 0) {
+                        count++;
+                        before = &(*mooreNodeIter);
+                    }
+                    if ((mooreNodeIter->name).compare(to) == 0) {
+                        count++;
+                        after = &(*mooreNodeIter);
+                    }
                 }
                 if (count!=2) {
                     cout << "the ARC nodes are not in the array :" << count;
-                    getline(cin,input);
+                    cin >> input;
+                    getline(cin, input);
                     continue; //asks for next input
                 }
-                // now lets figure how many x's there are in the string
+                /**
+                 * now lets figure how many x's there are in the string
+                 */
+                const char* inputsCONST = inputs.c_str();
+                char* inputsCopy; strcpy(inputsCopy, inputsCONST);
                 int numX = 0;
-                char* inputsCopy;
-                strcpy(inputsCopy,inputs); //copy of the input array
-                while(NULL!=strpbrk(inputs, 'xX')) {
+                int searchLoc = 0;
+                searchLoc = inputs.find('x',searchLoc);
+                while(searchLoc=-1) {
                     numX++; //tells me the size
+                    searchLoc = inputs.find('x',searchLoc);
                 }
-                if (numX !=0) {
-                    numX*=2;
-                    long numInput[numX];
-                    int loc = strpbrk(inputsCopy,'xX');
-                    for(int i = 0; i < numX; i++) {
-                        char* option1 = NULL;
-                        char* option2 = NULL;
-                        inputsCopy[loc] = '0';
-                        strcpy(option1, inputsCopy);
-                        inputsCopy[loc] = '1';
-                        strcpy(option2, inputsCopy);
-                        numInput[++i] = strtol(option1, &ptr, 2);
-                        numInput[i] = strtol(option2, &ptr, 2);
-                        loc = strpbrk(inputsCopy,'xX');
-                        edgeMoore edgeMoore_ = edgeMoore(from, to, numInput[i-1]);
-                        mooreEdges.push_back(edgeMoore_);
-                        edgeMoore edgeMoore_ = edgeMoore(from, to, numInput[i-1]);
+                int size = pow(2,numX);
+                long numInput[size];
+                edgeMoore edgeMoore_ = edgeMoore();
+                if (numX == 1) {
+                    char* loc = strchr(inputsCopy,'x');
+                    *loc = '0';
+                    numInput[0] = strtol(inputsCopy, &ptr, 2);
+                    *loc = '1';
+                    for (int i = 0; i < size; i++) {
+                        edgeMoore_ = edgeMoore(before, after, numInput[i]);
                         mooreEdges.push_back(edgeMoore_);
                     }
-                } else {
-                    edgeMoore edgeMoore_ = edgeMoore(from, to, strtol(inputs, &ptr, 2))
-                    mooresEdges.push_back(edgeMoore_);
+                } else if (numX == 2) {
+                    char* loc = strchr(inputsCopy,'x');
+                    *loc = '0';
+                    char* loc2 = strchr(inputsCopy,'x');
+                    *loc2 = '0';
+                    numInput[0] = strtol(inputsCopy, &ptr, 2); //00
+                    *loc2 = '1';
+                    numInput[1] = strtol(inputsCopy, &ptr, 2); //01
+                    *loc = '1';
+                    numInput[2] = strtol(inputsCopy, &ptr, 2); //11
+                    *loc2 = '0';
+                    numInput[3] = strtol(inputsCopy, &ptr, 2); //10
+                    for (int i = 0; i < size; i++) {
+                        edgeMoore_ = edgeMoore(before, after, numInput[i]);
+                        mooreEdges.push_back(edgeMoore_);
+                    }
+                } else if (numX == 3) {
+                    char* loc = strchr(inputsCopy,'x');
+                    *loc = '0';
+                    char* loc2 = strchr(inputsCopy,'x');
+                    *loc2 = '0';
+                    char* loc3 = strchr(inputsCopy,'x');
+                    *loc3 = '0';
+                    numInput[0] = strtol(inputsCopy, &ptr, 2); //000
+                    *loc3 = '1';
+                    numInput[1] = strtol(inputsCopy, &ptr, 2); //001
+                    *loc2 = '1';
+                    numInput[2] = strtol(inputsCopy, &ptr, 2); //011
+                    *loc = '1';
+                    numInput[3] = strtol(inputsCopy, &ptr, 2); //111
+                    *loc3 = '0';
+                    numInput[4] = strtol(inputsCopy, &ptr, 2); //110
+                    *loc2 = '0';
+                    numInput[5] = strtol(inputsCopy, &ptr, 2); //100
+                    *loc = '0';
+                    *loc2 = '1';
+                    numInput[6] = strtol(inputsCopy, &ptr, 2); //010
+                    *loc = '1';
+                    *loc2 = '0';
+                    *loc3 = '1';
+                    numInput[7] = strtol(inputsCopy, &ptr, 2); //101
+                    for (int i = 0; i < size; i++) {
+                        edgeMoore_ = edgeMoore(before, after, numInput[i]);
+                        mooreEdges.push_back(edgeMoore_);
+                    }
+                } else if (numX == 4) {
+                    char* loc = strchr(inputsCopy,'x');
+                    *loc = '0';
+                    char* loc2 = strchr(inputsCopy,'x');
+                    *loc2 = '0';
+                    char* loc3 = strchr(inputsCopy,'x');
+                    *loc3 = '0';
+                    char* loc4 = strchr(inputsCopy,'x');
+                    *loc4 = '0';
+                    numInput[0] = strtol(inputsCopy, &ptr, 2); //0000
+                    *loc3 = '1';
+                    numInput[1] = strtol(inputsCopy, &ptr, 2); //0001
+                    *loc2 = '1';
+                    numInput[2] = strtol(inputsCopy, &ptr, 2); //0011
+                    *loc = '1';
+                    numInput[3] = strtol(inputsCopy, &ptr, 2); //0111
+                    *loc3 = '0';
+                    numInput[4] = strtol(inputsCopy, &ptr, 2); //0110
+                    *loc2 = '0';
+                    numInput[5] = strtol(inputsCopy, &ptr, 2); //0100
+                    *loc = '0';
+                    *loc2 = '1';
+                    numInput[6] = strtol(inputsCopy, &ptr, 2); //0010
+                    *loc = '1';
+                    *loc2 = '0';
+                    *loc3 = '1';
+                    numInput[7] = strtol(inputsCopy, &ptr, 2); //1101
+                    *loc4 = '1';
+                    numInput[8] = strtol(inputsCopy, &ptr, 2); //1000
+                    *loc3 = '1';
+                    numInput[9] = strtol(inputsCopy, &ptr, 2); //1001
+                    *loc2 = '1';
+                    numInput[10] = strtol(inputsCopy, &ptr, 2); //1011
+                    *loc = '1';
+                    numInput[11] = strtol(inputsCopy, &ptr, 2); //1111
+                    *loc3 = '0';
+                    numInput[12] = strtol(inputsCopy, &ptr, 2); //1110
+                    *loc2 = '0';
+                    numInput[13] = strtol(inputsCopy, &ptr, 2); //1100
+                    *loc = '0';
+                    *loc2 = '1';
+                    numInput[14] = strtol(inputsCopy, &ptr, 2); //1010
+                    *loc = '1';
+                    *loc2 = '0';
+                    *loc3 = '1';
+                    numInput[15] = strtol(inputsCopy, &ptr, 2); //101
+                    for (int i = 0; i < size; i++) {
+                        edgeMoore_ = edgeMoore(before, after, numInput[i]);
+                        mooreEdges.push_back(edgeMoore_);
+                    }
+                }
+                else {
+                    edgeMoore edgeMoore_ = edgeMoore(before, after, strtol(inputsCopy, &ptr, 2));
+                    mooreEdges.push_back(edgeMoore_);
                 }
             }
-            getline(cin, input); //at the end of the
+            getline(cin, input);
         }
     }
 }
 
 int main() {
     setUp();
+    setUpNodes();
+
+
 	return 0;
 }
