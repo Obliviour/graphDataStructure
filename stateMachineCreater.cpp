@@ -88,12 +88,13 @@ bool compareMooreName(const nodeMoore &lhs, const nodeMoore &rhs) {
 }
 
 void printGraph() {
+	bool nonNull = 0;
 	if (isMealy) {
 		mealyNodes.sort(&compareMealyName);
 		for (mealyNodeIter = mealyNodes.begin(); mealyNodeIter != mealyNodes.end(); ++mealyNodeIter) {
             cout << "NODE: " << mealyNodeIter->name << endl;
 			//printf("NODE: %s\n", mealyNodeIter->name);
-            int count = 1;
+            int count = 0;
             for (mealyEdgeIter = mealyEdges.begin(); mealyEdgeIter != mealyEdges.end(); ++mealyEdgeIter) {
 				if (mealyNodeIter->name == mealyEdgeIter->fromNode->name) {
                     cout << "\t" <<  mealyEdgeIter->fromNode->name << " " << mealyEdgeIter->toNode->name << " ";
@@ -101,27 +102,32 @@ void printGraph() {
                     //printf("\t%s %s \n", mealyEdgeIter->fromNode->name, mealyEdgeIter->toNode->name);
                     cout << std::bitset<4>(mealyEdgeIter->inputs).to_string() << " / " << mealyEdgeIter->outputs << endl;
                     count++;
+                    nonNull = 1;
                 }
 			}
-            if (count != pow(numInputBits,2)) {
+			
+            if ((count != pow(numInputBits,2)) || !nonNull) {
                 cout << "%error: missing inputs for state changes for NODE " << mealyNodeIter->name << "%" << endl;
             }
 		}
 	} else {
 		mooreNodes.sort(&compareMooreName);
+		
 		for (mooreNodeIter = mooreNodes.begin(); mooreNodeIter != mooreNodes.end(); ++mooreNodeIter) {
             cout << "NODE: " << mooreNodeIter->name << " / " << mooreNodeIter->outputs << endl;
 			//printf("NODE: %s / %s\n", mooreNodeIter->name, mooreNodeIter->outputs);
-			int count = 1;
+			int count = 0;
 			for (mooreEdgeIter = mooreEdges.begin(); mooreEdgeIter != mooreEdges.end(); ++mooreEdgeIter) {
 				if (mooreNodeIter->name == mooreEdgeIter->fromNode->name) {
                     cout << "\t" <<  mooreEdgeIter->fromNode->name << " " << mooreEdgeIter->toNode->name << " ";
 					//printf("\t%s %s ", mooreEdgeIter->fromNode->name, mooreEdgeIter->toNode->name);
                     cout << std::bitset<4>(mooreEdgeIter->inputs).to_string() << endl;
                     count++;
+                    nonNull = 1;
 				}
 			}
-            if (count != pow(numInputBits,2)) {
+			
+            if ((count != pow(numInputBits,2)) || !nonNull) {
                 cout << "%error: missing inputs for state changes for NODE " << mooreNodeIter->name << "%" << endl;
             }
 		}
@@ -138,16 +144,18 @@ void printStateMachine() {
 	bool foundInput = 0;
 	if (isMealy) {
 		printElement("Curr State", 10);
-		printElement("|", pow(2, numInputBits) * 6 - 19);
-		printElement("Next State / Output", pow(2,numInputBits) * 6);
+		printElement("|", 1);
+		printElement(" ", (pow(2,numInputBits) * 10) - 10);
+		printElement("Next State/Output", 17);
 		cout << endl;
 		printElement("", 10);
+		printElement("|",1);
 		for (int i = 0; i < pow(2,numInputBits); i++) {
-        	printElement(std::bitset<4>(i), 5);
+        	printElement(std::bitset<4>(i), 20);
 		}
 		cout << endl;
 		separator = '-';
-		printElement(' ', pow(2,numInputBits));
+		printElement('-', pow(2,numInputBits) * 20 + 10);
 		separator = ' ';
 		cout << endl;
 		mealyNodes.sort(&compareMealyName);
@@ -156,53 +164,57 @@ void printStateMachine() {
 			printElement("|", 1);
 			for (int i = 0; i < pow(2,numInputBits); i++) {
 				for (mealyEdgeIter = mealyEdges.begin(); mealyEdgeIter!= mealyEdges.end(); ++mealyEdgeIter) {
-					if (i == mealyEdgeIter->inputs) {
-						printElement(mealyEdgeIter->toNode, 8);
+					if (i == mealyEdgeIter->inputs && mealyNodeIter->name.compare(mealyEdgeIter->fromNode->name) == 0) {
+						printElement(mealyEdgeIter->toNode->name, 8);
 						cout << " / ";
-						printElement(mealyEdgeIter->outputs, 5);
+						printElement(mealyEdgeIter->outputs, 9);
 						foundInput = 1;
 						break;
 					}
 				}
 				if (!foundInput) {
-					printElement("X",8);
+					printElement(" ", 7);
+					printElement("X",1);
 					cout << " / ";
-					printElement("X",8);
+					printElement("X",9);
 				}
+				foundInput = 0;
 			}
 			cout<<endl;
 		}
 	} else {
-		printElement("Curr State /", 10);
-		printElement("|", pow(2, numInputBits) * 6 - 10);
-		printElement("Next State", pow(2,numInputBits) * 6);
+		printElement("Curr State /", 16);
+		printElement("|", pow(2, numInputBits) * 6 - 5);
+		printElement("Next State", 10);
 		cout << endl;
-		printElement("Output", 10);
+		printElement("Output", 16);
+		printElement("|",1);
 		for (int i = 0; i < pow(2,numInputBits); i++) {
-        	printElement(std::bitset<4>(i), 5);
+        	printElement(std::bitset<4>(i), 12);
 		}
 		cout << endl;
 		separator = '-';
-		printElement(' ', pow(2,numInputBits));
+		printElement('-', pow(2,numInputBits) * 12 + 16);
 		separator = ' ';
 		cout << endl;
 		mealyNodes.sort(&compareMealyName);
-		for (mealyNodeIter = mealyNodes.begin(); mealyNodeIter != mealyNodes.end(); ++mealyNodeIter) {
-			printElement(mealyNodeIter->name, 8);
+		for (mooreNodeIter = mooreNodes.begin(); mooreNodeIter != mooreNodes.end(); ++mooreNodeIter) {
+			printElement(mooreNodeIter->name, 8);
 			cout << " / ";
         	printElement(mooreNodeIter->outputs, 5);
 			cout << "|";
 			for (int i = 0; i < pow(2,numInputBits); i++) {
-				for (mealyEdgeIter = mealyEdges.begin(); mealyEdgeIter!= mealyEdges.end(); ++mealyEdgeIter) {
-					if (i == mealyEdgeIter->inputs) {
-						printElement(mealyEdgeIter->toNode, 8);
+				for (mooreEdgeIter = mooreEdges.begin(); mooreEdgeIter!= mooreEdges.end(); ++mooreEdgeIter) {
+					if (i == mooreEdgeIter->inputs && mooreNodeIter->name.compare(mooreEdgeIter->fromNode->name) == 0) {
+						printElement(mooreEdgeIter->toNode->name, 12);
 						foundInput = 1;
 						break;
 					}
 				}
 				if (!foundInput) {
-					printElement("X",8);
+					printElement("X",12);
 				}
+				foundInput = 0;
 			}
 			cout<<endl;
 		}
