@@ -1,0 +1,72 @@
+Welcome to Derin and Victor's State Generator
+Press enter after each of the following input specifications
+How many states will you have? (INT 1 - 25)
+How many input bits? (INT 1-4)
+Mealy (Press 1) or Moore Machine (Press 0)?
+Begin adding NODE and ARC for MOORE State Machine
+NODE name / output or ARC fromNode toNode inputs
+Type GRAPH to print graph and TABLE to print table
+Type DONE to finish
+name: wine output: class
+1
+wine
+name: vodka output: trash
+2
+vodka
+name: coors output: yuck
+3
+coors
+name: ipa output: yum
+4
+ipa
+name: water output: drive
+5
+water
+from: water to: ipa inputs: xx1
+from: water to: vodka inputs: 000
+from: coors to: vodka inputs: xxx
+from: wine to: coors inputs: x0x
+from: wine to: ipa inputs: 010
+
+Curr State /    |                                          Next State
+Output          |0000        0001        0010        0011        0100        0101        0110        0111        
+----------------------------------------------------------------------------------------------------------------
+wine     / class|coors       coors       ipa         X           coors       coors       X           X           
+vodka    / trash|X           X           X           X           X           X           X           X           
+coors    / yuck |vodka       vodka       vodka       vodka       vodka       vodka       vodka       vodka       
+ipa      / yum  |X           X           X           X           X           X           X           X           
+water    / drive|vodka       ipa         X           ipa         X           ipa         X           ipa         
+
+
+NODE: coors / yuck
+	coors vodka 0000
+	coors vodka 0001
+	coors vodka 0011
+	coors vodka 0111
+	coors vodka 0110
+	coors vodka 0100
+	coors vodka 0010
+	coors vodka 0101
+%error: missing inputs for state changes for NODE coors%
+NODE: ipa / yum
+%error: missing inputs for state changes for NODE ipa%
+NODE: vodka / trash
+%error: missing inputs for state changes for NODE vodka%
+NODE: water / drive
+	water ipa 0001
+	water ipa 0011
+	water ipa 0111
+	water ipa 0101
+	water vodka 0000
+%error: missing inputs for state changes for NODE water%
+NODE: wine / class
+	wine coors 0000
+	wine coors 0001
+	wine coors 0101
+	wine coors 0100
+	wine ipa 0010
+%error: missing inputs for state changes for NODE wine%
+name: water output: herp
+ERROR: This input has already been declared water
+from: yogurt to: chili inputs: xxx
+ERROR!! Either chili or yogurt are not in the array :
