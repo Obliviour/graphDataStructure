@@ -1,0 +1,50 @@
+Welcome to Derin and Victor's State Generator
+Press enter after each of the following input specifications
+How many states will you have? (INT 1 - 25)
+How many input bits? (INT 1-4)
+Mealy (Press 1) or Moore Machine (Press 0)?
+Begin adding NODE and ARC for MEALY State Machine
+NODE name or ARC fromNode toNode inputs / outputs
+Type GRAPH to print graph and TABLE to print table
+Type DONE to finish
+1
+apple
+ERROR: This input has already been declared apple
+2
+orange
+3
+plantain
+4
+water
+from node: orange to node: plantain inputs: xx outputs: yum
+from node: plantain to node: water inputs: xx outputs: tasty
+from node: water to node: orange inputs: xx outputs: rawr
+
+Curr State|                              Next State/Output
+          |0000                0001                0010                0011                
+------------------------------------------------------------------------------------------
+apple     |       X / X               X / X               X / X               X / X        
+orange    |plantain / yum      plantain / yum      plantain / yum      plantain / yum      
+plantain  |water    / tasty    water    / tasty    water    / tasty    water    / tasty    
+water     |orange   / rawr     orange   / rawr     orange   / rawr     orange   / rawr     
+
+
+NODE: apple
+%error: missing inputs for state changes for NODE apple%
+NODE: orange
+	orange plantain 0000 / yum
+	orange plantain 0001 / yum
+	orange plantain 0011 / yum
+	orange plantain 0010 / yum
+NODE: plantain
+	plantain water 0000 / tasty
+	plantain water 0001 / tasty
+	plantain water 0011 / tasty
+	plantain water 0010 / tasty
+NODE: water
+	water orange 0000 / rawr
+	water orange 0001 / rawr
+	water orange 0011 / rawr
+	water orange 0010 / rawr
+from node: water to node: wine inputs: xx outputs: nope
+ERROR!! Either wine or water are not in the array :
